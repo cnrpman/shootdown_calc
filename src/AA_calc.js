@@ -86,15 +86,15 @@ var dir = fs.readdirSync('../asset/enemy_maps'),
 		_sh[row[0]] = row;
 	});
 
-var result = [];
 for (var i in dir){
 	var title = dir[i],
 	    desc = title.replace('.json',''),
 		content = fs.readFileSync('../asset/enemy_maps/' + title, 'utf-8');
-	result.push({
+	var result = {
 		"formation":convertRoute(JSON.parse(content)),
 		"desc":desc
-	})
+	};
+	fs.writeFileSync('../asset/enemy_aa/'+desc+'.json', JSON.stringify(result));
 }
-fs.writeFileSync('../asset/enemy_aa/'+desc+'.json', JSON.stringify(result));
+
 

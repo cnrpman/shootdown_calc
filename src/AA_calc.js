@@ -1,44 +1,100 @@
 var fs = require('fs');
-var _si = require('../asset/slotitems.json'),
-    _sh = require('../asset/ships.json');
+	
+var abysmalAAx = 0.25,
+abysmalFleetAAx = 0.5,
+itemType3_AAx = [ // *1
+	0,
+	0,//1 小口径主炮
+	0,//2 中
+	0,//3 大
+	0,//4 副炮
+	0,0,0,0,0,0,
+	3,//11 电探
+	0,//12 340
+	0,0,
+	6,//15 对空机枪
+	4,//16 高脚炮
+	0,0,0,0,0,0,0,0,0,0,0,0,0,
+	4,//30 高射装置
+	0,0,0,0,0
+],
+itemType3_FleetAAx = [ // should / 100
+	0,
+	20,//1 小口径主炮
+	20,//2 中
+	20,//3 大
+	20,//4 副炮
+	0,0,0,0,0,0,
+	40,//11 电探
+	60,//12 340
+	0,0,
+	20,//15 对空机枪
+	35,//16 高脚炮
+	0,0,0,0,0,0,0,0,0,0,0,0,0,
+	35,//30 高射装置
+	0,0,0,0,0
+],formation_FleetAAx = [ // should / 45
+	0,
+	35,
+	41,
+	55,
+	35,
+	35
+];
 
-var convertRoute = function(points){
-		var newPoints = [];
-		for(var i in points)
-			newPoints[i] = convertPoint(points[i]);
-		return newPoints;
-	},
-	convertPoint = function(point){
-		var newPoint = [];
-		for(var i in point.fleets){
-			newPoint[i] = convertFleet(point.fleets[i]);
-		}
-		return newPoint;
-	},
-	convertFleet = function(fleet){
-		var newFleet = [
-			null,
-			cal_fleetAA(fleet.ships, fleet.formation)
-		];
-		for(var i in fleet.ships)
-			newFleet.push(cal_AA(fleet.ships[i]));
-	};
+var convertRoute = function(route){
+	return route.map(function(point){
+		return point.fleets.map(function(fleet){
+			return [
+				null,
+				cal_fleetAA(fleet.ships, fleet.formation)
+			].concat(
+				fleet.ships.map(function(ship){
+					return cal_AA(ship);
+				})
+			);
+		});
+	});
+};
 	
 var	cal_fleetAA = function(ships, formation){
-		for(var i in ships){
-			cal_soloFleetAA
-		}
-	}
+	return ships.reduce(function(shipFleetAA_sum, shipId){
+		return shipFleetAA_sum += itemsSum(itemType3_FleetAAx, shipId);
+	},0) * formation_FleetAAx[formation] * 2 * abysmalFleetAAx / 4500;
+},
+cal_AA = function(shipId){
+	var aa = parseInt(_sh[shipId][9]);
+	if(aa === 0)
+	    console.log('datalost: shipId == '+shipId+' , shipName == '+ _sh[shipId][1]);
+	return aa * abysmalAAx + itemsSum(itemType3_AAx, shipId);
+},
+itemsSum = function(X, shipId){
+	return _sh[shipId].slice(24,28).reduce(function(prev, itemId){
+		if(itemId == -1)return prev;
+		var item = _si[itemId];
+		return prev += item.api_tyku * X[item.api_type[3]];
+	},0);
+}
 
-var dir = fs.readdirSync('../asset/enemy_maps');
+var dir = fs.readdirSync('../asset/enemy_maps'),
+	_si = require('../asset/slotitems.json'),
+    _sh = new Array(1000);
+	
+	fs.readFileSync('../asset/ShipParameterRecord.csv','utf-8').split('\n')
+	.forEach(function(ship){
+		var row = ship.split(',');
+		_sh[row[0]] = row;
+	});
 
 var result = [];
 for (var i in dir){
 	var title = dir[i],
-	    desc = title.replace('json',''),
+	    desc = title.replace('.json',''),
 		content = fs.readFileSync('../asset/enemy_maps/' + title, 'utf-8');
 	result.push({
 		"formation":convertRoute(JSON.parse(content)),
 		"desc":desc
 	})
 }
+fs.writeFileSync('../asset/enemy_aa/'+desc+'.json', JSON.stringify(result));
+

@@ -2,11 +2,11 @@ var fs = require('fs');
 
 function gridSdCalc(gridRange, enemy){
 	var S1SdRate = [
-			[7,15],
-			[20,45],
-			[30,75],
+			[65,150],
 			[45,105],
-			[65,150]
+			[30,75],
+			[20,45],
+			[7,15]
 		],
 		clone = function(obj){
 			var newObj = new Array(obj.length);
@@ -24,18 +24,15 @@ function gridSdCalc(gridRange, enemy){
 		reducer = function(array){
 			var range = array.length;
 			var answer = array.reduce(function(prev,next){
-				for(var i in prev){
-					prev[i][0] += next[i][0];
-					prev[i][1] += next[i][1];
-				}
+				for(var i in prev)
+					for(var j in prev[i])
+						prev[i][j] += next[i][j];
 				return prev;
 			});
-			for(var i in answer){
-				if(answer[i][0] != 0)
-					answer[i][0] /= range;
-				if(answer[i][1] != 0)
-					answer[i][1] /= range;
-			}
+			for(var i in answer)
+				for(var j in answer[i])
+					if(answer[i][j] != 0)
+						answer[i][j] /= range;
 			return answer;
 		},
 		S0Calc = function(battleId, gridSz){
@@ -94,7 +91,7 @@ function gridSdCalc(gridRange, enemy){
 					answer[i] = [0,0].slice(0);
 				}
 			}
-			answer[battleId] = gridSz > 0 ? [1, Math.sqrt(gridSz)] : [0, 0];
+			answer[battleId] = [gridSz > 0 ? 1: 0, gridSz > 0 ? Math.sqrt(gridSz): 0,];
 			return answer;//,,,[1,3],[2,4],[0,0],[0,0]
 		};
 		
@@ -122,25 +119,15 @@ function gridSdCalc(gridRange, enemy){
 
 var enemy_aa = require('../asset/enemy_aa.json');
 enemy_aa.forEach(function(route){
-	var answer = gridSdCalc(50, route.formation.map(function(point){
-		return point.map(function(format){
-			format[0] = 4;
-			return format;
-		});
+	var answer = gridSdCalc(50, route.formation);
+	
+	for(var i in answer){
+		answer[i] =  i + ',' + answer[i].map(function(tuple){
+			return tuple.join(',');
+		}).join(',') + ',' + Math.sqrt(i);
 	}
-	));
 	
-	console.log(answer);
-	
-	fs.writeFile('../output/'+route.desc+'.csv',
-		'extincted_chance,expect_damage\n'.concat( 
-			answer.map(function(row){
-				return row.map(function(tuple){
-					return tuple.join(',');
-				}).join(',');
-			}).join('\n')
-		)
-	);
+	fs.writeFile('../output/'+route.desc+'.csv',answer.join('\n'));
 });
 
 

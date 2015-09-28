@@ -46,7 +46,7 @@ var convertRoute = function(route){
 	return route.map(function(point){
 		return point.fleets.map(function(fleet){
 			return [
-				null,
+				(point.ad || fleet.ad || 4),
 				cal_fleetAA(fleet.ships, fleet.formation)
 			].concat(
 				fleet.ships.map(function(ship){
@@ -63,17 +63,30 @@ var	cal_fleetAA = function(ships, formation){
 	},0) * formation_FleetAAx[formation] * 2 * abysmalFleetAAx / 4500;
 },
 cal_AA = function(shipId){
+	if(!verifySID(shipId))return 0;
 	var aa = parseInt(_sh[shipId][9]);
-	if(aa === 0)
-	    console.log('datalost: shipId == '+shipId+' , shipName == '+ _sh[shipId][1]);
+	if(aa === 0 && _sh[shipId][1].match('潜水')===null && _sh[shipId][1].match('輸送')==null){
+	    console.log('WARN|datalost AA: shipId == '+ shipId + ' , shipName == '+ _sh[shipId][1]);
+		return 0;
+	}
 	return aa * abysmalAAx + itemsSum(itemType3_AAx, shipId);
 },
 itemsSum = function(X, shipId){
+	if(!verifySID(shipId))return 0;
 	return _sh[shipId].slice(24,28).reduce(function(prev, itemId){
 		if(itemId == -1)return prev;
 		var item = _si[itemId];
 		return prev += item.api_tyku * X[item.api_type[3]];
 	},0);
+},
+verifySID = function(shipId){
+	if(shipId == -1)
+		return false;
+	if(_sh[shipId] == undefined){
+		console.log('WARN:datalost: shipId == ' + shipId);
+		return false;
+	}
+	return true;
 }
 
 var dir = fs.readdirSync('../asset/enemy_maps'),

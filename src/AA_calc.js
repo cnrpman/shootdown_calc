@@ -66,8 +66,11 @@ cal_AA = function(shipId){
 	if(!verifySID(shipId))return 0;
 	var aa = parseInt(_sh[shipId][9]);
 	if(aa === 0 && _sh[shipId][1].match('潜水')===null && _sh[shipId][1].match('輸送')==null){
-	    console.log('WARN|datalost AA: shipId == '+ shipId + ' , shipName == '+ _sh[shipId][1]);
-		return 0;
+		if(_saa[shipId] === undefined){
+	 	    console.log('WARN|datalost AA: shipId == '+ shipId + ' , shipName == '+ _sh[shipId][1]);
+		    return 0;
+		}
+		else aa = _saa[shipId];
 	}
 	return aa * abysmalAAx + itemsSum(itemType3_AAx, shipId);
 },
@@ -91,6 +94,7 @@ verifySID = function(shipId){
 
 var dir = fs.readdirSync('../asset/enemy_maps'),
 	_si = require('../asset/slotitems.json'),
+	_saa = require('../asset/shipAA_append.json'),
     _sh = new Array(1000);
 	
 	fs.readFileSync('../asset/ShipParameterRecord.csv','utf-8').split('\n')

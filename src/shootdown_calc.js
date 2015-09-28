@@ -16,7 +16,7 @@ function gridSdCalc(gridRange, enemy){
 			return newObj;
 		},
 		sdPercent = function (gridSz, wAA){
-			return Math.floor(gridSz * wAA / 400);
+			return Math.floor(gridSz* Math.floor(wAA * 0.9) / 360);
 		},
 		sdNumeric = function (wAA, fleetAA){
 			return Math.floor((fleetAA + wAA) * 0.1);
@@ -88,10 +88,15 @@ function gridSdCalc(gridRange, enemy){
 			else{
 				answer = new Array(battleN);
 				for(var i = 0; i < battleN; i++){
-					answer[i] = [0,0].slice(0);
+					answer[i] = new Array(gridRange);
+					for(var j = 0; j < gridRange; j++){
+						answer[i][j] = 0;
+					}
+					answer[i][0] = 1;
 				}
 			}
-			answer[battleId] = [gridSz > 0 ? 1: 0, gridSz > 0 ? Math.sqrt(gridSz): 0,];
+			answer[battleId][0] = 0;
+			answer[battleId][gridSz > 0? gridSz:0] = 1;
 			return answer;//,,,[1,3],[2,4],[0,0],[0,0]
 		};
 		

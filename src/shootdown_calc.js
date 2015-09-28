@@ -123,16 +123,26 @@ function gridSdCalc(gridRange, enemy){
 }
 
 var enemy_aa = require('../asset/enemy_aa.json');
+
 enemy_aa.forEach(function(route){
+	console.log("calculationg: "+route.desc);
 	var answer = gridSdCalc(50, route.formation);
 	
-	for(var i in answer){
-		answer[i] =  i + ',' + answer[i].map(function(tuple){
-			return tuple.join(',');
-		}).join(',') + ',' + Math.sqrt(i);
-	}
 	
-	fs.writeFile('../output/'+route.desc+'.csv',answer.join('\n'));
+	var battle = new Array(10);
+	for(var i = 0;i < 10; i++){
+		battle[i] = [];
+	}
+	for(var i in answer){
+		for(var j in answer[i]){
+			battle[j].push(answer[i][j].join(','));
+		}
+	}			
+	for(var i = 0; i < route.formation.length; i++){
+		var path = '../output/meta/'+route.desc+'_battle_'+i+'.csv';
+		console.log("output: " + path);
+		fs.writeFile(path, battle[i].join('\n'));
+	}
 });
 
 

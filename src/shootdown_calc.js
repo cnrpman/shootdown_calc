@@ -16,10 +16,10 @@ function gridSdCalc(gridRange, enemy){
 			return newObj;
 		},
 		sdPercent = function (gridSz, wAA){
-			return Math.floor(gridSz* Math.floor(wAA * 0.9) / 360);
+			return Math.floor(gridSz * wAA / 400);
 		},
 		sdNumeric = function (wAA, fleetAA){
-			return Math.floor((fleetAA + wAA) * 0.1);
+			return Math.floor((fleetAA + wAA) / 10.6);
 		},
 		reducer = function(array){
 			var range = array.length;

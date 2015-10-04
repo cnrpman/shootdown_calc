@@ -16,10 +16,10 @@ function gridSdCalc(gridRange, enemy){
 			return newObj;
 		},
 		sdPercent = function (gridSz, wAA){
-			return Math.floor(gridSz* Math.floor(wAA * 0.9) / 360);
+			return Math.floor(gridSz * wAA / 400);
 		},
 		sdNumeric = function (wAA, fleetAA){
-			return Math.floor((fleetAA + wAA) * 0.1);
+			return Math.floor((fleetAA + wAA) / 10.6);
 		},
 		reducer = function(array){
 			var range = array.length;
@@ -81,6 +81,7 @@ function gridSdCalc(gridRange, enemy){
 			return answer;
 		},
 		S3Calc = function(battleId, gridSz){
+			step++;
 			var answer, battleN = enemy.length;
 			if(gridSz > 0 && battleId + 1 < battleN){
 				answer = S0Calc(battleId + 1, gridSz);
@@ -88,8 +89,8 @@ function gridSdCalc(gridRange, enemy){
 			else{
 				answer = new Array(battleN);
 				for(var i = 0; i < battleN; i++){
-					answer[i] = new Array(gridRange);
-					for(var j = 0; j < gridRange; j++){
+					answer[i] = new Array(50);
+					for(var j = 0; j < 50; j++){
 						answer[i][j] = 0;
 					}
 					answer[i][0] = 1;
@@ -105,7 +106,8 @@ function gridSdCalc(gridRange, enemy){
 		GRID_N = 100,
 		memoryS0 = new Array(BATTLE_N),
 		memoryS1 = new Array(BATTLE_N),
-		memoryS2 = new Array(BATTLE_N);
+		memoryS2 = new Array(BATTLE_N),
+		step = 0;
 	for(var i = 0; i < BATTLE_N; i++){
 		memoryS0[i] = new Array(GRID_N);
 		memoryS1[i] = new Array(FORMA_N);
@@ -117,8 +119,10 @@ function gridSdCalc(gridRange, enemy){
 	}
 	
 	var answer = new Array(50);
-	for(var i = 0; i <= gridRange; i++)
+	for(var i = 0; i <= gridRange; i++){
 		answer[i] = S0Calc(0,i);
+		console.log('grid:'+i+' step:'+step);
+	}
 	return answer;
 }
 

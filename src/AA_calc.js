@@ -18,28 +18,35 @@ itemType3_AAx = [ // *1
 	4,//30 高射装置
 	0,0,0,0,0
 ],
-itemType3_FleetAAx = [ // should / 100
+itemType3_Spec_AAx = [
+	0
+],
+itemType3_FleetAAx = [ // should / 20
 	0,
-	20,//1 小口径主炮
-	20,//2 中
-	20,//3 大
-	20,//4 副炮
+	4,//1 小口径主炮
+	4,//2 中
+	4,//3 大
+	4,//4 副炮
 	0,0,0,0,0,0,
-	40,//11 电探
-	60,//12 340
+	8,//11 电探
+	4,//12 340
 	0,0,
-	20,//15 对空机枪
-	35,//16 高脚炮
+	4,//15 对空机枪
+	7,//16 高脚炮
 	0,0,0,0,0,0,0,0,0,0,0,0,0,
-	35,//30 高射装置
+	4,//30 高射装置
 	0,0,0,0,0
-],formation_FleetAAx = [ // should / 45
+],
+itemType3_Spec_FleetAAx = [
+	4
+],
+formation_FleetAAx = [ // should / 5
 	0,
-	35,
-	41,
-	55,
-	35,
-	35
+	5,
+	6,
+	8,
+	5,
+	5
 ];
 
 var convertRoute = function(route){
@@ -59,27 +66,33 @@ var convertRoute = function(route){
 	
 var	cal_fleetAA = function(ships, formation){
 	return ships.reduce(function(shipFleetAA_sum, shipId){
-		return shipFleetAA_sum += itemsSum(itemType3_FleetAAx, shipId);
-	},0) * formation_FleetAAx[formation] * 2 * abysmalFleetAAx / 4500;
+		return shipFleetAA_sum += Math.floor(itemsSum(itemType3_FleetAAx, itemType3_Spec_FleetAAx, shipId)/20);
+	},0)* formation_FleetAAx[formation] * 2 / 5;
 },
 cal_AA = function(shipId){
 	if(!verifySID(shipId))return 0;
 	var aa = parseInt(_sh[shipId][9]);
-	if(aa === 0 && _sh[shipId][1].match('潜水')===null && _sh[shipId][1].match('輸送')==null){
+	if(aa === 0 && _sh[shipId][1].match('潜水')===null && _sh[shipId][1].match('輸送')===null){
 		if(_saa[shipId] === undefined){
 	 	    console.log('WARN|datalost AA: shipId == '+ shipId + ' , shipName == '+ _sh[shipId][1]);
 		    return 0;
 		}
 		else aa = _saa[shipId];
 	}
-	return aa * abysmalAAx + itemsSum(itemType3_AAx, shipId);
+	return Math.floor(Math.sqrt(aa)*2) + itemsSum(itemType3_AAx, itemType3_Spec_AAx, shipId);
 },
-itemsSum = function(X, shipId){
+itemsSum = function(X, X2, shipId){
 	if(!verifySID(shipId))return 0;
 	return _sh[shipId].slice(24,28).reduce(function(prev, itemId){
-		if(itemId == -1)return prev;
-		var item = _si[itemId];
-		return prev += item.api_tyku * X[item.api_type[3]];
+		if(itemId == -1)
+			return prev;
+			
+		var item = _si[itemId], X_val;
+		if(item.api_type[3] == 16 && item.api_name.match('単装') !== null)
+			X_val = X2[0];
+		else X_val = X[item.api_type[3]];
+		
+		return prev += item.api_tyku * X_val;
 	},0);
 },
 verifySID = function(shipId){

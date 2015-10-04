@@ -27,15 +27,15 @@ itemType3_FleetAAx = [ // should / 20
 	4,//2 中
 	4,//3 大
 	4,//4 副炮
-	4,4,4,4,4,4,
+	0,0,0,0,0,0,
 	8,//11 电探
 	4,//12 340
-	4,4,
+	0,0,
 	4,//15 对空机枪
 	7,//16 高脚炮
-	4,4,4,4,4,4,4,4,4,4,4,4,4,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,
 	4,//30 高射装置
-	4,4,4,4,4
+	0,0,0,0,0
 ],
 itemType3_Spec_FleetAAx = [
 	4
@@ -65,9 +65,9 @@ var convertRoute = function(route){
 };
 	
 var	cal_fleetAA = function(ships, formation){
-	return Math.floor(ships.reduce(function(shipFleetAA_sum, shipId){
-		return shipFleetAA_sum += itemsSum(itemType3_FleetAAx, itemType3_Spec_FleetAAx, shipId)/20;
-	},0)/20)* formation_FleetAAx[formation] * 2 / 5;
+	return ships.reduce(function(shipFleetAA_sum, shipId){
+		return shipFleetAA_sum += Math.floor(itemsSum(itemType3_FleetAAx, itemType3_Spec_FleetAAx, shipId)/20);
+	},0)* formation_FleetAAx[formation] * 2 / 5;
 },
 cal_AA = function(shipId){
 	if(!verifySID(shipId))return 0;
